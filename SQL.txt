@@ -1,0 +1,60 @@
+Requirement 9
+
+First answer:
+Question: Return the names of all salespeople that have an order with George
+ 
+select s.name from 
+salesperson s 
+join orders o on s.salespersonid = o.salespersonid
+join customer c on c.customerid = o.customerid
+where c.name = 'George';
+
+
+
+Second answer:
+Question: Return the names of all salespeople that do not have any order with George 
+
+select distinct s.name from salesperson s 
+join orders o on o.salespersonid = s.salespersonid
+where o.salespersonid 
+not in 
+(select o1.salespersonid from orders o1
+ 	join customer c1 on c1.customerid = o1.customerid
+where c1.name = 'George');
+
+
+Third answer:
+Question: Return the names of salespeople that have 2 or more orders.
+
+select name from salesperson s join orders o 
+on s.salespersonid = o.salespersonid 
+group by s.name having count(*) > 1;
+
+
+
+Requirement 10
+
+First answer:
+Question: Return the name of the salesperson with the 3rd highest salary.
+
+select min(temp.salary) 
+from (select salary from salesperson order by salary desc limit 3) as temp;
+
+
+Second answer:
+Question: Create a new roll-up table BigOrders(where columns are CustomerID, TotalOrderValue), and insert into that table customers whose total Amount across all orders is greater than 1000
+
+create table bigorders (customerid int, totalordervalue int);
+
+insert into bigorders
+(select customerid, sum(numberofunits * costofunits) 
+from orders group by customerid having sum(numberofunits * costofunits) >1000);
+
+
+Third answer:
+Question: Return the total Amount of orders for each month, ordered by year, then month (both in descending order)
+
+select year(orderdate) as year , month(orderdate) as month, sum(numberofunits * costofunits) as amount
+from orders
+group by year(orderdate), month(orderdate)
+order by year(orderdate), month(orderdate) desc;
